@@ -4,8 +4,32 @@ import json
 from pathlib import Path
 import re
 import sys
+from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
+GUIDE_SECTIONS = [
+    'Downloads', 'Tested environment and status', 'Coverage', 'Before importing',
+    'Connection and requests', 'Import and configure', 'Troubleshooting',
+    'Limitations', 'Security',
+]
+
+
+def validate_guide(folder):
+    errors = []
+    guide = folder / 'README.md'
+    if not guide.is_file():
+        return [f'Missing guide: {folder.name}/README.md']
+    text = guide.read_text(encoding='utf-8')
+    if re.findall(r'^## (.+)$', text, re.MULTILINE) != GUIDE_SECTIONS:
+        errors.append(f'{folder.name}: guide sections do not match the shared structure')
+    if (folder / 'blog').exists():
+        errors.append(f'{folder.name}: consolidate blog content into README.md')
+    for target in re.findall(r'\]\(([^)]+)\)', text):
+        url = urlsplit(target)
+        if not url.scheme and not url.netloc and url.path:
+            if not (folder / unquote(url.path)).exists():
+                errors.append(f'{folder.name}: broken local guide link: {target}')
+    return errors
 
 
 def leaves(value, path='$'):
@@ -78,6 +102,10 @@ def main():
     errors = []
     for path in files:
         errors.extend(validate(path))
+        guide_errors = validate_guide(path.parent.parent)
+        errors.extend(guide_errors)
+        for error in guide_errors:
+            print(f'ERROR: {error}')
     print('Static checks passed.' if not errors else 'Static checks failed.')
     return bool(errors)
 

@@ -10,6 +10,10 @@ Community management pack designs for collecting QNAP, Ubiquiti UniFi, and Dell 
 
 ## Start here
 
+Each integration folder uses the same layout: `README.md` for its complete guide and `designs/` for its Builder JSON. The guides use matching sections for downloads, tested status, coverage, prerequisites, requests, installation, troubleshooting, limitations, and security. Device coverage and credentials remain specific to each integration; a missing compatibility result is recorded as unknown rather than assumed.
+
+The Dell walkthrough is consolidated into its guide; no separate blog folder is needed. QNAP and UniFi have published version 1.0.0 download releases. Dell currently provides its JSON directly. Existing release ZIPs retain their original documentation; the repository guides contain the latest documentation updates.
+
 These downloads are **Management Pack Builder design JSON files, not installable `.pak` files**. Extract a design archive, import its JSON into Builder, configure your environment, validate collection, and install through Builder. Do not upload a design ZIP to a `.pak` installer.
 
 The originating Operations build is **9.1.0.0400.25541561**. Other releases and device software versions require validation. These are community integrations; no vendor certification or support commitment is claimed.

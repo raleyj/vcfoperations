@@ -1,11 +1,13 @@
 # Dell iDRAC Redfish
 
-A community Management Pack Builder design for direct PowerEdge monitoring through iDRAC over HTTPS. OpenManage Enterprise, OMEVV, and a bridge appliance are not required by this design.
+A community Management Pack Builder design for direct PowerEdge monitoring through iDRAC over HTTPS. OpenManage Enterprise, OMEVV, and a bridge appliance are not required.
+
+## Downloads
 
 - [Builder design JSON](designs/Dell%20iDRAC%20Redfish.json)
-- [Project walkthrough](blog/README.md)
+- No separate Dell release ZIP is published yet. Download the JSON above, or build a local ZIP with `python tools/package_designs.py` from the repository root.
 
-Exported design version: **1.0.0**. Import the JSON into Builder; it is not an installable `.pak`. The exported design is preserved byte for byte. Its hostname default is empty and its TLS default is **Verify**. Credentials must be supplied separately.
+Exported design version: **1.0.0**. This is a Builder design, not an installable `.pak`. The export is preserved byte for byte. This README is the current guide and is included by the repository packaging tool.
 
 ## Tested environment and status
 
@@ -29,7 +31,14 @@ This is a custom community preview, not a Dell or Broadcom certified management 
 
 The reference inventory was one server, one system-power object, two power supplies, four temperature sensors, and one adapter instance. Builder adds `adapter_instance_id` to object identity to separate different configured sources. Power-supply identity also uses member ID and serial number; server identity uses UUID; temperature identity uses sensor number.
 
-Health values are string properties. Unknown or null health is not normalized to healthy. Null numeric readings are omitted, not converted to zero. In the powered-off test, inlet temperature was 20 C and total standby power was 26 W; CPU temperature readings were absent.
+Health values are string properties. Unknown or null health is not normalized to healthy. Null numeric readings are omitted, not converted to zero. In the powered-off test, inlet temperature was 20 C and total standby power was 26 W; CPU and exhaust temperature readings were absent.
+
+## Before importing
+
+- Use a dedicated iDRAC account with the minimum access needed for the required Redfish reads. The minimum role was not independently validated.
+- Confirm collector DNS resolution and connectivity to the iDRAC HTTPS management port, normally 443.
+- Use a trusted certificate matching the selected hostname or IP address. The hostname default is blank and TLS defaults to Verify.
+- Supply ordinary iDRAC credentials in the UI. Do not apply the QNAP password encoding procedure.
 
 ## Connection and requests
 
@@ -58,11 +67,16 @@ All configured API requests are GET requests. No power-control, firmware-update,
 8. Open **Integrations**, locate **Dell iDRAC Redfish**, and add an account with its own host, collector, TLS configuration, username, and password. Builder test credentials are not copied into the runtime account.
 9. Validate the account, then verify at least two scheduled collection cycles, fresh timestamps, and plausible values against iDRAC before relying on monitoring.
 
-## TLS troubleshooting
+## Troubleshooting
 
 In the lab, accepting the self-signed certificate did not fix its name mismatch: the certificate covered an iDRAC hostname, while the connection used an IP address. The workstation could resolve the certificate's hostname, but the Operations collector could not. Testing proceeded with explicit approval to use **No Verify** for that lab source.
 
 No Verify keeps encryption but disables certificate identity verification. It is not the recommended deployment setting. The public design defaults to Verify; fix DNS, trust, and certificate naming for your environment. Do not switch to unencrypted HTTP to resolve this issue.
+
+
+- 401/403: verify the dedicated account credentials and access to the required Redfish resources.
+- Missing temperature or fan values: check server power state and actual returned data. Do not treat missing readings as zero or unknown health as healthy.
+- Builder succeeds but runtime fails: check the integration account credentials and collector network path separately.
 
 ## Limitations
 
@@ -74,4 +88,6 @@ No Verify keeps encryption but disables certificate identity verification. It is
 - The release is design JSON, not a standalone `.pak`. Do not rename JSON or ZIP files to `.pak`.
 - Installation and a successful test collection do not prove continuous runtime collection.
 
-Do not publish credentials, raw response bodies, private addresses, hostnames, service tags, or serial numbers in issues or screenshots. See the repository [security guidance](../SECURITY.md).
+## Security
+
+Do not publish credentials, raw response bodies, private addresses, hostnames, or device identifiers in issues or screenshots. See the repository [security guidance](../SECURITY.md).
