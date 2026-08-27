@@ -50,6 +50,12 @@ def validate(path):
         if isinstance(value, str):
             for label, pattern in patterns.items():
                 if re.search(pattern, value):
+                    # Builder's stock credential help text is not an Authorization value.
+                    if label == 'literal authorization' and location.endswith('.description') and value in (
+                        'The username to connect to the API with basic authentication',
+                        'The password to connect to the API with basic authentication',
+                    ):
+                        continue
                     errors.append(f'{label} at {location} (value omitted)')
     ids = {value for location, value in scalar_values if location.endswith('.id') and isinstance(value, str)}
     reference_fields = ('.originId', '.requestId', '.parentRequestId', '.parentObjectId', '.childObjectId')
@@ -66,8 +72,8 @@ def validate(path):
 
 def main():
     files = sorted(ROOT.glob('*/designs/*.json'))
-    if len(files) != 2:
-        print(f'Expected two designs; found {len(files)}')
+    if len(files) != 3:
+        print(f'Expected three designs; found {len(files)}')
         return 1
     errors = []
     for path in files:
