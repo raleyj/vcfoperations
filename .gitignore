@@ -1,0 +1,14 @@
+# Local credentials, collected data, and build artifacts must stay out of Git.
+.secrets/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.clixml
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db
+/dist/
