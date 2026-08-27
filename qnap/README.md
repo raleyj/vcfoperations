@@ -1,6 +1,6 @@
 # QNAP Direct HTTPS
 
-A community preview that collects directly from QNAP QTS over HTTPS. No bridge appliance is required.
+A community Management Pack Builder preview for QNAP array inventory, disk health, volume usage, and iSCSI service monitoring directly through QTS over HTTPS. No bridge appliance is required.
 
 ## Downloads
 
