@@ -1,6 +1,6 @@
 # Dell iDRAC Redfish
 
-A community Management Pack Builder design for direct PowerEdge monitoring through iDRAC over HTTPS. OpenManage Enterprise, OMEVV, and a bridge appliance are not required.
+A community Management Pack Builder design for PowerEdge inventory, health, power, and temperature monitoring through the iDRAC Redfish API over HTTPS. OpenManage Enterprise, OMEVV, and a bridge appliance are not required.
 
 ## Downloads
 
