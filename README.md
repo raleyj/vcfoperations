@@ -2,6 +2,8 @@
 
 Community management pack designs for collecting QNAP, Ubiquiti UniFi, and Dell iDRAC data directly into VMware Cloud Foundation Operations. These designs do not require a bridge appliance.
 
+Choose an integration below for its design download, setup guide, tested scope, and limitations. Shared validation and packaging instructions are in [tools](tools/README.md).
+
 | Integration | Setup and coverage |
 | --- | --- |
 | QNAP Direct HTTPS | [QNAP guide](qnap/README.md): array, disk health, volume usage, and iSCSI service inventory |
