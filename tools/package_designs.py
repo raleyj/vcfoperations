@@ -12,7 +12,8 @@ output = ROOT / 'dist'
 output.mkdir(exist_ok=True)
 checksums = []
 for folder, prefix in [('qnap', 'qnap-direct-https'),
-                       ('ubiquiti', 'ubiquiti-unifi-network')]:
+                       ('ubiquiti', 'ubiquiti-unifi-network'),
+                       ('dell', 'dell-idrac-redfish')]:
     designs = sorted((ROOT / folder / 'designs').glob('*.json'))
     version = json.loads(designs[0].read_bytes())['design']['design']['version']
     if not version or any(c not in '0123456789.-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' for c in version):
