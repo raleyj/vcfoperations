@@ -1,11 +1,12 @@
 # VCF Operations Management Pack Designs
 
-Community management pack designs for collecting QNAP and Ubiquiti UniFi data directly into VMware Cloud Foundation Operations. Neither design requires a bridge appliance.
+Community management pack designs for collecting QNAP, Ubiquiti UniFi, and Dell iDRAC data directly into VMware Cloud Foundation Operations. These designs do not require a bridge appliance.
 
 | Integration | Setup and coverage |
 | --- | --- |
 | QNAP Direct HTTPS | [QNAP guide](qnap/README.md): array, disk health, volume usage, and iSCSI service inventory |
 | Ubiquiti UniFi Network | [UniFi guide](ubiquiti/README.md): sites, devices, device statistics, and site-to-device relationships |
+| Dell iDRAC Redfish | [Dell guide](dell/README.md): PowerEdge health and inventory, system power, power supplies, and temperatures |
 
 ## Start here
 
