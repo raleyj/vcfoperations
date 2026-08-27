@@ -1,6 +1,6 @@
 # Ubiquiti UniFi Network
 
-A community Builder design using the local UniFi Network integration API. No bridge appliance is required.
+A community Management Pack Builder design for UniFi sites, device inventory, and device statistics through the local UniFi Network integration API. No bridge appliance is required.
 
 ## Downloads
 
