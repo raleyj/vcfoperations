@@ -1,6 +1,6 @@
 # QNAP Direct HTTPS
 
-A community preview that collects directly from QNAP QTS over HTTPS. No SNMP bridge or OVA is required.
+A community preview that collects directly from QNAP QTS over HTTPS.
 
 Design: [QNAP Direct HTTPS.json](designs/QNAP%20Direct%20HTTPS.json).
 
