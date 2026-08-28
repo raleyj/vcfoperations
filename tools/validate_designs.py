@@ -96,8 +96,8 @@ def validate(path):
 
 def main():
     files = sorted(ROOT.glob('*/designs/*.json'))
-    if len(files) != 3:
-        print(f'Expected three designs; found {len(files)}')
+    if len(files) != 4:
+        print(f'Expected four designs; found {len(files)}')
         return 1
     errors = []
     for path in files:
