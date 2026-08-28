@@ -8,7 +8,7 @@ Run these commands from the repository root with Python 3. No third-party Python
 python tools/validate_designs.py
 ```
 
-Checks all three Builder designs for blank host defaults, TLS verification, credential references, selected sensitive-value patterns, and structural references. Also checks matching guide sections and local guide links. These static checks do not replace manual privacy review or testing in VCF Operations.
+Checks all four Builder designs for blank host defaults, TLS verification, credential references, selected sensitive-value patterns, and structural references. Also checks matching guide sections and local guide links. These static checks do not replace manual privacy review or testing in VCF Operations.
 
 ## Build distribution ZIPs
 
