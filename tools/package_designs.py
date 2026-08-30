@@ -22,6 +22,9 @@ for folder, prefix in [('qnap', 'qnap-direct-https'),
     name = f'{prefix}-{version}-design.zip'
     target = output / name
     files = [ROOT / folder / 'README.md', ROOT / 'LICENSE', ROOT / 'SECURITY.md']
+    if folder == 'dell':
+        files += [ROOT / folder / 'COMPATIBILITY.md',
+                  ROOT / folder / 'tools/probe_idrac_redfish.py']
     files += designs
     with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
         for path in files:
