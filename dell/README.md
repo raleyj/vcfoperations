@@ -1,10 +1,19 @@
 # Dell iDRAC Redfish
 
+> **Compatibility:** This release is the legacy Redfish profile, tested on
+> iDRAC9 7.20.30.00. Before importing, run the read-only
+> [`tools/probe_idrac_redfish.py`](tools/probe_idrac_redfish.py) utility and read
+> [COMPATIBILITY.md](COMPATIBILITY.md). Newer iDRAC9 and iDRAC10 controllers may
+> advertise the modern `PowerSubsystem`, `ThermalSubsystem`, and `Sensors`
+> resources and require the modern profile rather than the legacy mappings.
+
 A community Management Pack Builder design for PowerEdge inventory, health, power, and temperature monitoring through the iDRAC Redfish API over HTTPS. OpenManage Enterprise, OMEVV, and a bridge appliance are not required.
 
 ## Downloads
 
 - [Builder design JSON](designs/Dell%20iDRAC%20Redfish.json)
+- [Compatibility guide](COMPATIBILITY.md)
+- [Read-only compatibility probe](tools/probe_idrac_redfish.py)
 - No separate Dell release ZIP is published yet. Download the JSON above, or build a local ZIP with `python tools/package_designs.py` from the repository root.
 
 Exported design version: **1.0.0**. This is a Builder design, not an installable `.pak`. The export is preserved byte for byte. This README is the current guide and is included by the repository packaging tool.
