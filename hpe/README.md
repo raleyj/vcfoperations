@@ -4,85 +4,100 @@ A community Management Pack Builder design for ProLiant inventory, health, fans,
 
 ## Downloads
 
-- [Builder design JSON](designs/HPE%20iLO%20Redfish.json)
-- No separate HPE release ZIP is published yet.
+- [Current Builder design JSON](designs/HPE%20iLO%20Redfish.json) — August 31, 2026 replacement with legacy and modern Redfish mappings.
+- No separate HPE release ZIP or installable `.pak` is published. Import the JSON into Builder and install through Builder; do not rename it to `.pak`.
+- The previous five-object-type design remains available in this file's Git history.
 
-Exported design version: **1.0.0**. This is a Builder design, not an installable `.pak`. The reviewed export is preserved byte for byte. Import the JSON into Builder; do not rename it to `.pak`.
+**Version note:** the development candidate was called Universal 1.1.0. After import, renaming, verification, and installation, Builder exported the installed design as **HPE iLO Redfish, version 1.0.0**; Operations displayed generated package version **1.0.0.1**. This download preserves the actual exported values. Identify this update by its August 31 date, seven object types, and SHA-256 below, not by a higher version number.
+
+SHA-256: `8b2e7bf1d479a76a09412c905b1f69a1d5923fdcffbd71268d28f3044582fd49`
 
 ## Tested environment and status
 
-- ProLiant DL360 Gen9 with iLO 4 Advanced, firmware 2.82.
-- VCF Operations **9.1.0.0400.25541561**, recorded in the exported design, with built-in Management Pack Builder.
-- Reference server powered off during testing.
-- Source connection, full Builder collection, and installation succeeded on August 28, 2026.
-- Final verification returned **49 objects, 138 metrics, 244 properties, 48 default relationships, and 0 events**, with no warnings or errors in that collection log. Totals include the adapter instance and Builder collection statistics.
-- A runtime account was subsequently added, but its validation and sustained scheduled collection have not been independently verified.
+- ProLiant DL360 Gen9 with iLO 4 Advanced firmware 2.82; server powered off.
+- VCF Operations **9.1.0.0400.25541561** with built-in Management Pack Builder.
+- On August 31, 2026, source connectivity, full Builder collection, and replacement installation succeeded.
+- Final collection: **49 objects, 140 metrics, 244 properties, 48 default relationships, and 0 events** in six seconds. Totals include the adapter instance and Builder collection statistics.
+- The collection was successful but **not warning-free**: eight missing-identifier warnings skipped seven modern fan records and one modern system-power record on iLO 4. The expected legacy hardware inventory was present.
+- The earlier August 28 design collected 49 objects and 138 metrics without warnings. Those results describe the previous design, not this replacement.
+- Runtime integration-account validation and sustained scheduled collection have not been independently verified for the replacement.
 
-This is a community preview, not an HPE or Broadcom certified management pack. Other ProLiant models, iLO generations, and firmware versions need separate validation.
+**Compatibility disclaimer:** best-effort mappings target Redfish-capable iLO 4 through iLO 7. Only the reference iLO 4 system was tested live. iLO 5, 6, and 7 were audited offline against seven [official HPE emulator mockups](https://github.com/HewlettPackard/ilo-redfish-emulator), not physical hardware or an executing Builder collector. This is not a claim of support for every firmware release or server model. iLO 1–3 and non-Redfish firmware are outside scope. No HPE or Broadcom certification or support commitment is claimed.
 
 ## Coverage
 
 | Object type | Coverage |
 | --- | --- |
-| HPE Server | Model, manufacturer, BIOS, serial number, UUID, SKU, power state, health/state, processor model and count, installed memory, power capacity and consumption statistics |
-| HPE iLO Controller | Firmware, controller name/type, license edition, state, UUID |
-| HPE Fan | Name, location, state, units, speed percent |
-| HPE Temperature Sensor | Name, sensor number, physical context, state, units, temperature and critical/fatal thresholds in Celsius |
-| HPE Power Supply | Model, firmware, bay, type, serial number, health/state, input voltage, last/average/maximum output watts |
+| HPE Server | Inventory, UUID, serial, BIOS, CPU/memory summary, health/state, and legacy system power |
+| HPE iLO Controller | Firmware, name/type, UUID, state, and legacy license property where present |
+| HPE Fan (iLO 4) | Legacy FanName, CurrentReading, Units, Oem.Hp location, and state |
+| HPE Fan (iLO 5-7) | Modern Name, Reading, ReadingUnits, Oem.Hpe location, and state |
+| HPE Temperature Sensor | Name, temperature, state, physical context, thresholds, and optional legacy number/units |
+| HPE Power Supply | Inventory, serial, health/state, input voltage, output watts, and optional legacy OEM properties |
+| HPE System Power (iLO 5-7) | PowerControl member identity, capacity, consumption, and average/minimum/maximum watts where available |
 
-The reference inventory contained one server, one controller, seven fans, 37 temperature sensors, two power supplies, and one adapter instance. Server and controller identities use UUID; fans use name; temperature sensors use sensor number; power supplies use serial number. Builder also includes `adapter_instance_id` to separate configured sources.
+The live reference inventory contained one server, one controller, seven legacy fans, 37 temperature sensors, two power supplies, and one adapter instance. The two modern-only object types produced no objects on that system.
 
-Health and state are properties, not custom alert definitions. Powered-off sensors returned zero temperature readings with Offline state. Those values must not be interpreted as actual 0 C measurements. A zero threshold is not automatically a meaningful alert threshold. The two power-supply records reported Absent/Warning in this test; that alone does not establish a hardware failure.
+This design uses parallel legacy and modern mappings, not negotiated generation detection. Missing identities can cause records to be skipped with warnings. Temperature identity now uses sensor name rather than sensor number; fans use generation-specific object type names. Server/controller identity uses UUID, power supplies use serial number, and modern system power uses MemberId. Builder also separates configured sources using adapter_instance_id.
+
+Health and state are properties, not custom alerts. Powered-off temperature values of zero with Offline state are not actual 0 C measurements. Zero thresholds and Absent/Warning power-supply records need context and do not independently establish hardware faults.
 
 ## Before importing
 
-- Use a dedicated iLO account with access to the required Redfish reads. The minimum role was not independently validated.
-- Confirm collector DNS resolution and connectivity to iLO HTTPS, normally port 443.
+- Use dedicated credentials with permission for the required Redfish reads; the minimum iLO role was not independently validated.
+- Confirm collector DNS and HTTPS connectivity, normally port 443.
 - Use a trusted certificate whose SAN matches the configured hostname or address, with TLS verification enabled.
-- Supply ordinary iLO username and password credentials. No password encoding procedure is required.
-- The exported hostname default is blank and TLS defaults to Verify. Credentials are references, not stored values.
+- The reviewed export has a blank hostname, TLS default Verify, and credential references rather than stored credentials.
+- Back up your existing design and plan a maintenance window if replacing an installation.
 
 ## Connection and requests
 
-Use HTTPS, Basic authentication, and base path `redfish/v1` without a leading slash. Builder adds the separator. Session authentication is disabled. The source uses the generated Basic authentication header, `Content-Type: application/json`, and `Connection: close`.
+Use HTTPS, Basic authentication, and base path `redfish/v1` without a leading slash. Session authentication is disabled. Headers are the generated Basic Authorization value, `Content-Type: application/json`, and `Connection: close`.
 
 | Purpose | Method and full path |
 | --- | --- |
-| Source connection test and Server | GET `/redfish/v1/Systems/1/` |
+| Source test and Server | GET `/redfish/v1/Systems/1/` |
 | Thermal | GET `/redfish/v1/Chassis/1/Thermal/` |
 | Power | GET `/redfish/v1/Chassis/1/Power/` |
 | iLO Controller | GET `/redfish/v1/Managers/1/` |
 
-All requests are read-only GET requests; pagination is disabled. The fixed resource ID `1` and mapped fields were validated against the reference iLO 4 only. No power-control, firmware-update, or configuration actions are included.
+All requests are read-only. Pagination is disabled and resource ID `1` is fixed. The selected modern mockups retain these endpoints, but other resource IDs, schemas, permissions, or firmware may require edits. No power-control, firmware-update, or configuration actions are included.
 
 ## Import and configure
 
-1. Download the design JSON. Preserve existing designs and use a separate test copy when needed.
-2. Open **Build > Developer Center > Management Pack Builder > Import** and select the JSON.
-3. Configure the source collector, iLO hostname, HTTPS port, and dedicated credentials.
-4. Keep TLS verification enabled and resolve certificate trust, name matching, and collector DNS/connectivity issues.
-5. Test the source and each request. Check actual returned fields against the mappings, especially on other firmware.
-6. Run **Verify > Perform Collection**. Inspect the log, object inventory, identities, metric values, and states. Counts may differ on other hardware.
-7. Install the validated pack through Builder.
-8. In **Integrations**, locate **HPE iLO Redfish** and add an account with its own host, collector, TLS configuration, and credentials. Builder test credentials are separate from runtime credentials.
-9. Validate the account and check at least two scheduled cycles, fresh timestamps, and values against iLO before relying on monitoring.
+1. Download the JSON and review this guide. Use a distinct staging name if the original design already exists; Builder rejected same-name imports in the tested environment.
+2. Open **Build > Developer Center > Management Pack Builder > Import**.
+3. Configure source host, collector, HTTPS port, credentials, and certificate verification.
+4. Test the source and every request; compare returned fields with the mappings.
+5. Run **Verify > Perform Collection**. Inspect logs and actual inventory, not just the success badge.
+6. Install through Builder only after reviewing the results for your device.
+7. In **Integrations**, add the runtime account separately. Builder source credentials are not runtime account credentials.
+8. Validate the runtime account and check at least two scheduled cycles, fresh timestamps, inventory, and readings before relying on monitoring.
+
+### Replacing an existing installation
+
+**This is not a verified non-destructive upgrade.** The lab replacement used a separately tested draft, explicitly approved uninstall of the old pack, retention of its Builder design as a legacy backup, renaming of the tested draft to HPE iLO Redfish, re-verification, and installation. The generated pack identity changed. Changed temperature identifiers and fan type names also mean historical object continuity must not be assumed.
+
+**VCF's uninstall warning states that all associated data, metadata, and supplied content will be deleted and the removed pack cannot be recovered through that operation.** Do not uninstall casually to resolve a name conflict. Preserve required data/configuration using your organization's backup process and obtain explicit approval before choosing this destructive replacement workflow. A design JSON backup does not preserve collected history. Runtime accounts must be recreated after removal.
 
 ## Troubleshooting
 
-- HTTP failed-to-respond errors: the reference iLO intermittently failed when connections were reused. Adding `Connection: close` resolved the observed request failures. Retest the complete collection after changing headers.
-- A successful preview badge is not sufficient: earlier previews skipped the server despite reporting success. Inspect logs and actual inventory. The final clean test included all five hardware object types.
-- 401/403: check credentials and access to the required resources.
-- TLS errors: fix trust and certificate naming from the collector's network perspective. The lab source used No Verify; this disables certificate identity verification and is not the recommended deployment setting. Do not switch to HTTP.
-- Zero or unexpected sensor values: check the device power state and the API's sensor state before interpreting the numeric reading.
-- Builder succeeds but runtime fails: verify the runtime account separately, including its credentials and collector network path.
+- A successful collection badge can coexist with missing records. Check expected inventory and warnings.
+- On the tested iLO 4, eight warnings for missing modern fan/power identifiers were expected and the legacy inventory remained present. Do not dismiss warnings for server, controller, temperature, PSU, or the fan mapping expected on your generation.
+- Some Gen12 mockup PSU records lack serial-number identities and may be omitted by this design. Offline field presence is not proof of collection.
+- Failed-to-respond errors on the reference iLO improved with `Connection: close`. Retest after header changes.
+- TLS name mismatch: use a certificate matching the configured endpoint and correct trust/DNS. The lab used explicitly approved No Verify after a name mismatch; this retains encryption but disables server identity verification. The public default remains Verify. Do not switch to HTTP.
+- 401/403: check the runtime or source credentials and Redfish permissions separately.
+- Zero sensor readings: inspect power state and sensor state before interpreting values.
 
 ## Limitations
 
-- No individual disk, RAID, storage-controller, DIMM, or CPU objects.
-- No custom dashboards, alert definitions, event mappings, or server-to-component topology. The 48 relationships in verification were Builder defaults.
-- iLO 5, iLO 6, other resource IDs, and other firmware are untested. This design uses fields observed on iLO 4, including fan `CurrentReading`.
-- Powered-on fan, temperature, and power behavior still needs validation.
-- Installation and a clean Builder test do not prove sustained runtime collection.
+- No claim of universal compatibility with all iLO generations, firmware, or hardware. iLO 5–7 remains unverified on hardware.
+- The modern fan/power definitions were not exercised with live modern data. The offline audit covered three iLO 5, one iLO 6, and three Gen12/iLO 7 mockups.
+- Optional legacy fields may be absent on modern systems: temperature number/units, OEM power-supply fields, processor health rollup, and license edition. Missing values are not zero or healthy.
+- No individual disk, RAID/storage-controller, DIMM, or CPU objects.
+- No custom dashboards, alerts, event mappings, or server-to-component topology. Observed relationships were Builder defaults.
+- Powered-on fan, temperature, and power behavior and sustained scheduled runtime collection remain unverified.
 
 ## Security
 
