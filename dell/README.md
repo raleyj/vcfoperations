@@ -100,3 +100,12 @@ No Verify keeps encryption but disables certificate identity verification. It is
 ## Security
 
 Do not publish credentials, raw response bodies, private addresses, hostnames, or device identifiers in issues or screenshots. See the repository [security guidance](../SECURITY.md).
+
+## Experimental modern Redfish candidate
+
+A separate [Dell iDRAC Modern Redfish Candidate](experimental/modern/README.md)
+is available for schema-based iDRAC9/iDRAC10 development. Nine synthetic tests
+pass; it is imported into VCF Operations 9.1 as an Invalid / Draft design pending
+source setup and Builder verification, not installed. Real modern hardware and
+scheduled collection remain untested. The legacy design and stable packages are
+unchanged. See the candidate README for its generator, mock service and limits.

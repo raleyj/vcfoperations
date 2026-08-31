@@ -1,13 +1,14 @@
 # Dell iDRAC compatibility
 
-The project uses Redfish and supports two endpoint families. This distinction is
+The project distinguishes two Redfish endpoint families; this is not a claim of
+validated support for both. This distinction is
 required because a single Builder response mapping cannot safely interpret both
 the legacy aggregate documents and the newer subsystem resources.
 
 | Profile | Intended targets | Resource family | Status |
 | --- | --- | --- | --- |
 | Legacy | iDRAC7/8 and iDRAC9 where aggregate resources remain available | `Systems/{id}`, `Chassis/{id}/Power`, `Chassis/{id}/Thermal` | Builder-tested on iDRAC9 7.20.30.00 |
-| Modern | Newer iDRAC9 and iDRAC10 | `Systems/{id}`, `PowerSubsystem`, `ThermalSubsystem`, and `Sensors` | Schema-reviewed; hardware validation required |
+| Modern | Newer iDRAC9 and iDRAC10 | `Systems/{id}`, `PowerSubsystem`, `ThermalSubsystem`, and `Sensors` | Experimental candidate; synthetic tests pass; hardware validation required |
 
 ## Probe a controller
 
@@ -29,13 +30,20 @@ matches the configured hostname is the recommended configuration.
 - Do not assume `System.Embedded.1`; discover IDs from `/redfish/v1/Systems` and
   `/redfish/v1/Chassis`.
 - Prefer modern subsystem links advertised by the Chassis resource.
-- Use the legacy design only when both aggregate endpoints return HTTP 200.
+- HTTP 200 alone is insufficient: compare legacy response shapes, properties and
+  actual paths with the design before testing collection.
 - Treat missing or null sensor values as unavailable, never as zero.
 - Validate a full Builder collection and two scheduled runtime cycles before
   treating a firmware or hardware model as supported.
 
-The current importable design remains the legacy profile. A modern Builder
-design must be generated and tested against an iDRAC that exposes the modern
-documents before it can be published as supported; schema review alone is not a
-substitute for that test.
+The legacy design remains the only hardware-tested profile. A separate
+[Modern Redfish Candidate](experimental/modern/README.md) is available with
+synthetic fixtures and nine local tests. Imported into VCF Operations 9.1 on
+August 31, 2026 as a separate Invalid / Draft design; source configuration and
+Builder verification remain incomplete. It has not been installed and does not
+replace the legacy pack. No real iDRAC10 or modern iDRAC9 collection was tested.
 
+The probe currently examines the first system/chassis and does not traverse
+pagination. Multi-chassis targets need manual review. Resource detection does not
+validate metric mappings. iDRAC6 and firmware without Redfish are outside scope;
+iDRAC7/8 require Redfish-capable firmware and independent validation.

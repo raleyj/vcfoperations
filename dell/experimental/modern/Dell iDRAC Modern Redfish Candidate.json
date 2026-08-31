@@ -1,0 +1,2498 @@
+{
+  "type": "HTTP",
+  "design": {
+    "design": {
+      "name": "Dell iDRAC Modern Redfish Candidate",
+      "type": "HTTP",
+      "version": "0.1.0",
+      "opsVersion": "9.1.0.0400.25541561",
+      "description": "EXPERIMENTAL. Standard modern Redfish candidate for iDRAC9/iDRAC10 evaluation. Synthetic fixtures only; no real modern iDRAC validation. Not a supported replacement for the legacy Dell pack. Uses linked PowerSubsystem, ThermalSubsystem, EnvironmentMetrics and Sensors. Optional branches, pagination, Builder URL handling and runtime collection require validation."
+    }
+  },
+  "source": {
+    "source": {
+      "type": "HTTP",
+      "id": "3e3d9e90-fdd5-5a98-ac70-b4f785785fd0",
+      "configuration": {
+        "type": "HTTP",
+        "baseApiPath": "",
+        "customConfigs": []
+      },
+      "authentication": {
+        "type": "HTTP",
+        "creds": [
+          {
+            "id": "818cd1c8-1e3d-5576-b05b-a75e9ca17d7f",
+            "label": "Username",
+            "editable": false,
+            "sensitive": false,
+            "usage": "${authentication.credentials.username}",
+            "description": "The username to connect to the API with basic authentication"
+          },
+          {
+            "id": "02030fe2-1492-5e4d-a4e2-466bff4b03e0",
+            "label": "Password",
+            "editable": false,
+            "sensitive": true,
+            "usage": "${authentication.credentials.password}",
+            "description": "The password to connect to the API with basic authentication"
+          }
+        ],
+        "credentialType": "BASIC"
+      },
+      "globalHeaders": [
+        {
+          "key": "Authorization",
+          "value": "Basic ${authentication.basic}",
+          "type": "IMMUTABLE"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "type": "REQUIRED"
+        }
+      ],
+      "testRequest": {
+        "id": "42a30817-d849-5307-866d-daec591befe5",
+        "name": "test-request",
+        "path": "/redfish/v1/",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200
+          }
+        }
+      }
+    },
+    "configuration": [
+      {
+        "id": "9ea281f8-c32a-58f8-bc80-5301430a0940",
+        "label": "Hostname",
+        "key": "mpb_hostname",
+        "defaultValue": "",
+        "description": "The hostname used to connect to the target API.",
+        "advanced": false,
+        "editable": false,
+        "configType": "STRING"
+      },
+      {
+        "id": "ec1ffc9c-fabf-55d2-ba89-99e352a551c3",
+        "label": "Port",
+        "key": "mpb_port",
+        "defaultValue": "443",
+        "description": "The port used to connect to the target API.",
+        "advanced": true,
+        "editable": false,
+        "configType": "NUMBER"
+      },
+      {
+        "id": "b4c6475e-06e2-5050-83c1-90e7486afe55",
+        "label": "Connection Timeout (s)",
+        "key": "mpb_connection_timeout",
+        "defaultValue": "30",
+        "description": "The maximum number of seconds to wait for a response from the endpoint.",
+        "advanced": true,
+        "editable": false,
+        "configType": "NUMBER"
+      },
+      {
+        "id": "c6c6d686-38b9-5838-8381-186d05807c47",
+        "label": "Maximum Concurrent Requests",
+        "key": "mpb_concurrent_requests",
+        "defaultValue": "2",
+        "description": "The maximum number of request that can be run simultaneously.",
+        "advanced": true,
+        "editable": false,
+        "configType": "NUMBER"
+      },
+      {
+        "id": "cbc28926-a63b-5cd4-b6a0-444b73271c8f",
+        "label": "Maximum Retries",
+        "key": "mpb_max_retries",
+        "defaultValue": "2",
+        "description": "The maximum number of times a call to an endpoint will be retried if it fails.",
+        "advanced": true,
+        "editable": false,
+        "configType": "NUMBER"
+      },
+      {
+        "id": "05213f3c-ac3e-5a36-a34e-1bc07463017c",
+        "label": "SSL Configuration",
+        "key": "mpb_ssl_config",
+        "defaultValue": "Verify",
+        "description": "The SSL mode to use when connecting to the target. Can be configured without SSL (No SSL), to use SSL but do not verify the target's certificate (No Verify), or to use SSL and verify the target's certificate (Verify).",
+        "advanced": true,
+        "editable": false,
+        "configType": "SINGLE_SELECTION",
+        "options": [
+          "No Verify",
+          "Verify",
+          "No SSL"
+        ]
+      },
+      {
+        "id": "cbd442a1-3798-575e-96d6-664956602143",
+        "label": "Minimum VMware Aria Operations Severity",
+        "key": "mpb_min_event_severity",
+        "defaultValue": "Warning",
+        "description": "The minimum event severity to collect.",
+        "advanced": true,
+        "editable": false,
+        "configType": "SINGLE_SELECTION",
+        "options": [
+          "Critical",
+          "Immediate",
+          "Warning",
+          "Info"
+        ]
+      }
+    ]
+  },
+  "objects": [
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "d44dc480-3a60-5324-9fbe-21bc02b09540",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "c7635462-3533-51c2-8672-bbf9189ac38b",
+            "metrics": [
+              {
+                "id": "1aaf72f1-694f-589c-9506-f2f58780aa13",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "c1f46322-1feb-53b6-9f20-87eeabf7469e",
+                  "expressionText": "@@@MPB_QUOTE d9100749-a209-5948-8c44-8ec39e46d728 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "d9100749-a209-5948-8c44-8ec39e46d728",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "79bf47d6-546e-5409-aae8-6798f42ff391",
+                "label": "Id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "08042e9c-1f42-53c8-a1b8-2e66c0e02045",
+                  "expressionText": "@@@MPB_QUOTE 150be75e-9800-5e36-aa6d-651f573a9541 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "150be75e-9800-5e36-aa6d-651f573a9541",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "22b85e89-52cc-5608-8c4e-3f24c92ab4ea",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "196fe436-e8a2-5956-9e9e-b76c4e2a97e6",
+                  "expressionText": "@@@MPB_QUOTE fe1d447f-4518-510b-8882-a202dbea5e99 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "fe1d447f-4518-510b-8882-a202dbea5e99",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "3f778b6f-7fae-57ac-8e8c-ee515da3ec65",
+                "label": "Status.Health",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "9dd3be0a-e2dc-5d68-bc40-ffac853839f1",
+                  "expressionText": "@@@MPB_QUOTE a9118e65-c349-5cfa-b1f9-7f20c5a1831f @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "a9118e65-c349-5cfa-b1f9-7f20c5a1831f",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Status.Health"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "2d91d235-7a22-54dc-a866-5f90612b06cb",
+                "label": "Status.State",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "ca1e4d7f-34fa-5b75-8c5a-276cd4850056",
+                  "expressionText": "@@@MPB_QUOTE 7dfb458a-18ed-5012-be18-10b70fe70596 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "7dfb458a-18ed-5012-be18-10b70fe70596",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Status.State"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "1c71da93-e6f2-5658-ba83-e724d68e23e8",
+                "label": "Manufacturer",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "f54e5b96-1100-5d92-9ed6-8fee037ed501",
+                  "expressionText": "@@@MPB_QUOTE 166acd04-0aaf-5f7c-b855-c4e4648749a3 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "166acd04-0aaf-5f7c-b855-c4e4648749a3",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Manufacturer"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "3eb1563b-eebd-5580-9ad9-3e8ff1a16515",
+                "label": "Model",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "a8aad2b6-a1a0-5b15-b405-3b8f02568a12",
+                  "expressionText": "@@@MPB_QUOTE 3220b247-3b7d-5484-8cfe-4c533af506f8 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "3220b247-3b7d-5484-8cfe-4c533af506f8",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Model"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "492c111c-f7d1-5552-852f-84033929855d",
+                "label": "SerialNumber",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "7b93a5ff-e270-5d8b-97fb-bdc161fd0f01",
+                  "expressionText": "@@@MPB_QUOTE 770f5877-547a-51ad-ab4c-2dbd61d133f1 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "770f5877-547a-51ad-ab4c-2dbd61d133f1",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-SerialNumber"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "572ac189-74fd-558b-98b9-1b8ce3d93de1",
+                "label": "PowerState",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "5120683f-de0f-543f-8bfc-2af3b79ea7f5",
+                  "expressionText": "@@@MPB_QUOTE 4a0e85b6-6e89-52fd-996a-23b3526114f9 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "4a0e85b6-6e89-52fd-996a-23b3526114f9",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-PowerState"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "6fd4acc8-1701-564e-bbe3-ad8458f97ca2",
+                "label": "BiosVersion",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "fe05be67-78c8-5306-a5ef-c7317ed8d1ad",
+                  "expressionText": "@@@MPB_QUOTE 924965ac-4b55-5b3a-8411-de653d94c3c0 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "924965ac-4b55-5b3a-8411-de653d94c3c0",
+                      "originType": "ATTRIBUTE",
+                      "originId": "b7414142-b6ad-5144-836e-6a0003c55b89-base-BiosVersion"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "b7414142-b6ad-5144-836e-6a0003c55b89"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Server",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "a964b72f-b5f8-5b63-b050-ada7fb33563b",
+            "expressionText": "@@@MPB_QUOTE 65de65ed-3a21-5035-8a5d-ba90bc305fd6 @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "65de65ed-3a21-5035-8a5d-ba90bc305fd6",
+                "originType": "METRIC",
+                "originId": "1aaf72f1-694f-589c-9506-f2f58780aa13"
+              }
+            ]
+          },
+          "identifierIds": [
+            "1aaf72f1-694f-589c-9506-f2f58780aa13"
+          ]
+        }
+      }
+    },
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "d1cb9734-d4bd-5027-b724-bbd2ee61f9ce",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "695b6862-0f9d-5ec0-8221-e9dbbf9cd0c9",
+            "metrics": [
+              {
+                "id": "90593576-0e45-566a-b855-e10ba800b02e",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "2082079f-ff69-5a57-9dcd-1a9ae05d33cf",
+                  "expressionText": "@@@MPB_QUOTE b1fb616d-c661-53e7-896d-41cc4416c326 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "b1fb616d-c661-53e7-896d-41cc4416c326",
+                      "originType": "ATTRIBUTE",
+                      "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "63f02b9c-c78b-5cb2-8227-f074365fac9d",
+                "label": "Id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "441d0774-8df7-5a54-805d-94bef5bc89c9",
+                  "expressionText": "@@@MPB_QUOTE 45ebbfbc-1459-5386-806c-4bf76e778793 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "45ebbfbc-1459-5386-806c-4bf76e778793",
+                      "originType": "ATTRIBUTE",
+                      "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-Id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "da4386c9-7a5f-5a4d-a795-e839b6544287",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "468df620-2a39-5254-ae82-8577b892862e",
+                  "expressionText": "@@@MPB_QUOTE aa44507e-98ae-5ed8-ac58-0363ec9aab22 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "aa44507e-98ae-5ed8-ac58-0363ec9aab22",
+                      "originType": "ATTRIBUTE",
+                      "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "4bddef98-9ee2-5895-8daa-4cbba63cf7e3",
+                "label": "Status.Health",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "1adbd70e-b800-5170-9ed8-70d7d7e17655",
+                  "expressionText": "@@@MPB_QUOTE d6ca2fb4-de7b-50d7-8791-9fc64cc9afd7 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "d6ca2fb4-de7b-50d7-8791-9fc64cc9afd7",
+                      "originType": "ATTRIBUTE",
+                      "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-Status.Health"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "53f678aa-5978-58f1-bc6f-99f13e169559",
+                "label": "Status.State",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "f9a7ffab-e2fe-5352-aef4-b66e4eeb2813",
+                  "expressionText": "@@@MPB_QUOTE 24314068-2204-5d5e-bc3a-cd6f6aab6ee0 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "24314068-2204-5d5e-bc3a-cd6f6aab6ee0",
+                      "originType": "ATTRIBUTE",
+                      "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-Status.State"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "20834df4-872b-5f93-9c80-befcace8c645"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Chassis",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "16202c8b-0266-5793-85c1-da6eb980eb66",
+            "expressionText": "@@@MPB_QUOTE 0cb9a1ff-a674-5f53-9b12-a0c9f3c1ce0f @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "0cb9a1ff-a674-5f53-9b12-a0c9f3c1ce0f",
+                "originType": "METRIC",
+                "originId": "90593576-0e45-566a-b855-e10ba800b02e"
+              }
+            ]
+          },
+          "identifierIds": [
+            "90593576-0e45-566a-b855-e10ba800b02e"
+          ]
+        }
+      }
+    },
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "278349d1-cf8c-50ae-98d5-f1a41a26c090",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "5ea4a55b-ee88-50a2-a543-638388325bbe",
+            "metrics": [
+              {
+                "id": "ce1f9800-23de-5754-8c6c-07477f1a90e0",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "81758a87-d657-5ae7-86bd-76b2e99d1453",
+                  "expressionText": "@@@MPB_QUOTE b3d2e9c0-fb17-5cca-983a-1931c643a980 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "b3d2e9c0-fb17-5cca-983a-1931c643a980",
+                      "originType": "ATTRIBUTE",
+                      "originId": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "db94da49-b7e8-5f2f-aa81-76a61325082d",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "8ae9b4cc-879d-584c-9a6c-3e48381fbd4f",
+                  "expressionText": "@@@MPB_QUOTE bdee9c22-fa6d-5174-af2a-4f8839da00f9 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "bdee9c22-fa6d-5174-af2a-4f8839da00f9",
+                      "originType": "ATTRIBUTE",
+                      "originId": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "5dbae6ae-0246-528a-a50a-202758c33d35",
+                "label": "PowerWatts.Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "3c0aa31b-c195-58dc-a60a-7d54310dc9d9",
+                  "expressionText": "@@@MPB_QUOTE 581399b8-c672-5a76-ba32-9b62b9c2144d @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "581399b8-c672-5a76-ba32-9b62b9c2144d",
+                      "originType": "ATTRIBUTE",
+                      "originId": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-PowerWatts.Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "3546042c-b46f-5cb8-a4dc-850127f95c04",
+                "label": "TemperatureCelsius.Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "8349a2a1-2952-5e5e-bc41-e8f6257b49b9",
+                  "expressionText": "@@@MPB_QUOTE 2af941fe-ec1e-5a4b-bca7-655bd4e6611a @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "2af941fe-ec1e-5a4b-bca7-655bd4e6611a",
+                      "originType": "ATTRIBUTE",
+                      "originId": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-TemperatureCelsius.Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Environment",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "49c1ce2d-7a0b-5236-a130-41cc75fc1537",
+            "expressionText": "@@@MPB_QUOTE 6a19ada0-8ede-5d72-a12e-a7b2f87e44ef @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "6a19ada0-8ede-5d72-a12e-a7b2f87e44ef",
+                "originType": "METRIC",
+                "originId": "ce1f9800-23de-5754-8c6c-07477f1a90e0"
+              }
+            ]
+          },
+          "identifierIds": [
+            "ce1f9800-23de-5754-8c6c-07477f1a90e0"
+          ]
+        }
+      }
+    },
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "6c1ee468-1789-5a6c-afaf-4157f52dfda6",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "b4128e2a-9908-5f7a-8fa1-90421ce3dc86",
+            "metrics": [
+              {
+                "id": "4ab65c97-9258-5635-8e4e-1d953891b9e5",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "379d1ed7-cee2-5118-a66d-3a7a4c8bacd0",
+                  "expressionText": "@@@MPB_QUOTE a2adcf89-e4f8-5880-b7d6-70d3ffee3873 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "a2adcf89-e4f8-5880-b7d6-70d3ffee3873",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "a20455d1-5e4a-5407-913c-8e84fc35be80",
+                "label": "Id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "d3dff73e-6f17-5a55-bbda-1815d501cb62",
+                  "expressionText": "@@@MPB_QUOTE 31be223f-d191-5077-a2c3-a68c01f20a36 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "31be223f-d191-5077-a2c3-a68c01f20a36",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "fd47fb2a-2f48-5b9b-849b-1937f1c4e619",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "07d7c129-56e3-5d05-bf2b-5709bee579ef",
+                  "expressionText": "@@@MPB_QUOTE 6f610752-8b0a-5278-bd3c-186d8b4cad21 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "6f610752-8b0a-5278-bd3c-186d8b4cad21",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "279aeb6c-b942-5ee9-84c6-3958fbf9b422",
+                "label": "Status.Health",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "b63f6fe3-7490-59f8-a5ce-f1df790d0364",
+                  "expressionText": "@@@MPB_QUOTE 6048b9de-d99a-568b-b85b-8f04a4e80c9a @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "6048b9de-d99a-568b-b85b-8f04a4e80c9a",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Status.Health"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "f41d2263-c454-5309-baa3-664e3c660927",
+                "label": "Status.State",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "789b70c8-4785-5be1-918e-f0721234adef",
+                  "expressionText": "@@@MPB_QUOTE 7f7b15ab-5ea8-5c23-aab6-3f374200cd43 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "7f7b15ab-5ea8-5c23-aab6-3f374200cd43",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Status.State"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "85cebad9-74de-5a8c-b025-0c74a381ff84",
+                "label": "Model",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "47983d6a-7a37-51be-a6ee-a5582870a55c",
+                  "expressionText": "@@@MPB_QUOTE a305f692-618f-599a-aead-e722a4b1ffae @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "a305f692-618f-599a-aead-e722a4b1ffae",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Model"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "d65c3f12-7e69-5d9e-8424-3b01a89f18a8",
+                "label": "SerialNumber",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "eb364576-4bc7-548f-878f-fc8d5ec5ced1",
+                  "expressionText": "@@@MPB_QUOTE 19a7df1a-436a-5a53-80a7-e8e6c81290e8 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "19a7df1a-436a-5a53-80a7-e8e6c81290e8",
+                      "originType": "ATTRIBUTE",
+                      "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-SerialNumber"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Power supply",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "f6bf517a-5f8b-5e69-b1b2-929495bf182e",
+            "expressionText": "@@@MPB_QUOTE 04dd7dd0-b5ef-5558-943c-075896685045 @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "04dd7dd0-b5ef-5558-943c-075896685045",
+                "originType": "METRIC",
+                "originId": "4ab65c97-9258-5635-8e4e-1d953891b9e5"
+              }
+            ]
+          },
+          "identifierIds": [
+            "4ab65c97-9258-5635-8e4e-1d953891b9e5"
+          ]
+        }
+      }
+    },
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "14e3b7f9-03fd-5f46-af0a-958ecfe9b88d",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "c02c6b71-2492-5dac-a6a2-177f9dee4a5d",
+            "metrics": [
+              {
+                "id": "cf734878-5e08-5868-94d6-d2a7a7afa4eb",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "c6ceb188-e84b-5ae9-80c2-bf9342529ee1",
+                  "expressionText": "@@@MPB_QUOTE fbb201af-5a45-5e51-a3a3-05d94b0427c5 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "fbb201af-5a45-5e51-a3a3-05d94b0427c5",
+                      "originType": "ATTRIBUTE",
+                      "originId": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "8ffe4697-bd4a-5957-8b44-1db61b93b475",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "9df1f7bb-636b-5bc3-9ed6-9abef7bafc18",
+                  "expressionText": "@@@MPB_QUOTE 8bddf749-35b1-57ee-92e1-4833608545e7 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "8bddf749-35b1-57ee-92e1-4833608545e7",
+                      "originType": "ATTRIBUTE",
+                      "originId": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "de2d26a2-6d55-5460-91ea-39ac27f78843",
+                "label": "InputPowerWatts.Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "2752d01d-9012-574c-8afe-0166c2d4ed9a",
+                  "expressionText": "@@@MPB_QUOTE d332ebf9-6745-5d20-b8a6-6bce9c07a2f1 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "d332ebf9-6745-5d20-b8a6-6bce9c07a2f1",
+                      "originType": "ATTRIBUTE",
+                      "originId": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-InputPowerWatts.Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "34700c31-1507-58d7-94c4-b8a9e9ea5870",
+                "label": "OutputPowerWatts.Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "9af8a7f7-56fe-57ca-8d8a-cb841a73402d",
+                  "expressionText": "@@@MPB_QUOTE 1cda4ffb-ea5e-59bf-94c9-a3f323806b81 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "1cda4ffb-ea5e-59bf-94c9-a3f323806b81",
+                      "originType": "ATTRIBUTE",
+                      "originId": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-OutputPowerWatts.Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "e0f2ff98-d49f-5e01-984d-870ec477c1f5",
+                "label": "InputVoltage.Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "0d5d42bf-a540-5256-910e-305bf32e0f69",
+                  "expressionText": "@@@MPB_QUOTE 5ec56c63-fe7b-5578-bc11-fbd86fe1304e @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "5ec56c63-fe7b-5578-bc11-fbd86fe1304e",
+                      "originType": "ATTRIBUTE",
+                      "originId": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-InputVoltage.Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "f44e0515-78c6-5d45-9508-7e4ac297f402"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Power supply metrics",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "c0b16bda-8d4e-5adb-bd0e-1e7652f7d98a",
+            "expressionText": "@@@MPB_QUOTE da6ad13a-bb25-58a2-a10b-52f0e0b39974 @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "da6ad13a-bb25-58a2-a10b-52f0e0b39974",
+                "originType": "METRIC",
+                "originId": "cf734878-5e08-5868-94d6-d2a7a7afa4eb"
+              }
+            ]
+          },
+          "identifierIds": [
+            "cf734878-5e08-5868-94d6-d2a7a7afa4eb"
+          ]
+        }
+      }
+    },
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "8f7f2522-bbfa-5756-8fcb-c4ef4e07c74c",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "75ca24c4-0ee9-5942-b3b6-52be8424df8d",
+            "metrics": [
+              {
+                "id": "e921c6d2-a4f0-5597-8b0d-3910a407d80e",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "430461e1-b31f-5fea-8d9c-ad814a67d807",
+                  "expressionText": "@@@MPB_QUOTE 80da834d-08a0-56ad-a530-cb01eb5bc46b @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "80da834d-08a0-56ad-a530-cb01eb5bc46b",
+                      "originType": "ATTRIBUTE",
+                      "originId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "94ac2705-7bda-5b80-ab49-4db69b335cf5",
+                "label": "Id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "97c3f9c6-7f7a-538a-84a6-fee910d3d68c",
+                  "expressionText": "@@@MPB_QUOTE 949d0296-9145-548c-86ed-32664fb74711 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "949d0296-9145-548c-86ed-32664fb74711",
+                      "originType": "ATTRIBUTE",
+                      "originId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "35d1c6e3-d4e7-5e31-a4ca-e015353a2b64",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "55ac27b1-f42a-588e-8dd9-9861fc58f8ff",
+                  "expressionText": "@@@MPB_QUOTE da19a394-97bd-53df-a8be-efd76e7d501a @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "da19a394-97bd-53df-a8be-efd76e7d501a",
+                      "originType": "ATTRIBUTE",
+                      "originId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "a1989464-b630-5dd1-bad0-383e762c253e",
+                "label": "Status.Health",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "02298647-d4a7-518c-8478-d8ecd62041b8",
+                  "expressionText": "@@@MPB_QUOTE ade14dfa-459c-5bb5-a474-2bb06a67cbcd @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "ade14dfa-459c-5bb5-a474-2bb06a67cbcd",
+                      "originType": "ATTRIBUTE",
+                      "originId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Status.Health"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "b588438f-8d59-5946-bfc0-a01b5e5adc1e",
+                "label": "Status.State",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "9421e67a-9e0d-55eb-bf9f-62be82961b20",
+                  "expressionText": "@@@MPB_QUOTE 8692a8f9-710c-5320-b4b5-876253245333 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "8692a8f9-710c-5320-b4b5-876253245333",
+                      "originType": "ATTRIBUTE",
+                      "originId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Status.State"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "75cfa1e9-57c4-5dfd-a4ea-5888ef7fd71d",
+                "label": "SpeedPercent.Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "58d0c322-8d0e-5fd1-8c5d-b4dbf1de8b9e",
+                  "expressionText": "@@@MPB_QUOTE 458f595c-8ec3-5933-a740-7ad119b318e9 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "458f595c-8ec3-5933-a740-7ad119b318e9",
+                      "originType": "ATTRIBUTE",
+                      "originId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-SpeedPercent.Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Fan",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "b7a0597e-ea28-5c5f-a6e6-243f9150a3f0",
+            "expressionText": "@@@MPB_QUOTE cf58db2c-7e67-59ce-a607-d315d4847a33 @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "cf58db2c-7e67-59ce-a607-d315d4847a33",
+                "originType": "METRIC",
+                "originId": "e921c6d2-a4f0-5597-8b0d-3910a407d80e"
+              }
+            ]
+          },
+          "identifierIds": [
+            "e921c6d2-a4f0-5597-8b0d-3910a407d80e"
+          ]
+        }
+      }
+    },
+    {
+      "object": {
+        "designType": "HTTP",
+        "id": "bde99d2c-9cfe-5f75-871b-118fc9bb002d",
+        "type": "INTERNAL",
+        "isListObject": false,
+        "metricSets": [
+          {
+            "id": "36174eaf-8f8d-5b97-a775-b1b8c6812e12",
+            "metrics": [
+              {
+                "id": "1eb1db28-35db-57b6-aadc-8dcfc686c334",
+                "label": "@odata.id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "78ea4aef-d4a4-53bd-a3fa-f200dcfdd8d7",
+                  "expressionText": "@@@MPB_QUOTE 1e254f19-43d4-56a4-983b-61663a592604 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "1e254f19-43d4-56a4-983b-61663a592604",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-@odata.id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "8ea35028-ca0a-50b9-9592-ce0a69dd9f20",
+                "label": "Id",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "903b1054-d96d-568b-ace7-3f6ee7b70736",
+                  "expressionText": "@@@MPB_QUOTE a879d65d-af36-5ea2-af48-7f64595af123 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "a879d65d-af36-5ea2-af48-7f64595af123",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Id"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "8e4fd526-e4bc-5829-b65d-8b7c0e54de02",
+                "label": "Name",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "d75da166-973d-5d8e-aba1-d1a8eda6f04a",
+                  "expressionText": "@@@MPB_QUOTE bdc96923-bc3b-53d5-9268-d384ff36738d @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "bdc96923-bc3b-53d5-9268-d384ff36738d",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Name"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "2c6cb9f1-1c07-549f-84ec-2f87dde9b8ce",
+                "label": "Status.Health",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "7bac5c56-a9aa-5e5e-9919-39edda8ee011",
+                  "expressionText": "@@@MPB_QUOTE c5a10ff7-0ae9-5284-8ef2-a314e1c1d729 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "c5a10ff7-0ae9-5284-8ef2-a314e1c1d729",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Status.Health"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "5d0cd474-ed9e-547a-980b-bb0d28562582",
+                "label": "Status.State",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "304e7b53-c9fd-5214-bdc7-992d2aaf98c4",
+                  "expressionText": "@@@MPB_QUOTE 15314f23-d6b8-5c44-823e-296ec7f555e6 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "15314f23-d6b8-5c44-823e-296ec7f555e6",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Status.State"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "e14c0f19-5994-5a67-a761-7cedcfa1a292",
+                "label": "Reading",
+                "dataType": "NUMBER",
+                "expression": {
+                  "id": "d4a7ba49-5334-5821-842a-3e92d0ca87ac",
+                  "expressionText": "@@@MPB_QUOTE ba8314c2-ba99-5d04-8533-5130d4bc5c63 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "ba8314c2-ba99-5d04-8533-5130d4bc5c63",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Reading"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "METRIC",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "de98def7-579f-5856-bdde-7a4141a11fe2",
+                "label": "ReadingType",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "85df2f7a-0536-5523-8578-e9b2dd2fe159",
+                  "expressionText": "@@@MPB_QUOTE 5da3423f-efdf-5c17-8976-ca83690593ec @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "5da3423f-efdf-5c17-8976-ca83690593ec",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-ReadingType"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              },
+              {
+                "id": "6ea1b3e3-898b-57f1-b49d-5a0337faf54e",
+                "label": "ReadingUnits",
+                "dataType": "STRING",
+                "expression": {
+                  "id": "210e97f1-41b5-5223-8026-af24791797b1",
+                  "expressionText": "@@@MPB_QUOTE c400683b-14f6-5e90-a0ee-6474e641f545 @@@MPB_QUOTE",
+                  "expressionParts": [
+                    {
+                      "id": "c400683b-14f6-5e90-a0ee-6474e641f545",
+                      "originType": "ATTRIBUTE",
+                      "originId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-ReadingUnits"
+                    }
+                  ]
+                },
+                "isKpi": false,
+                "usage": "PROPERTY",
+                "unit": "",
+                "groups": []
+              }
+            ],
+            "listId": "base",
+            "requestId": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a"
+          }
+        ],
+        "internalObjectInfo": {
+          "objectTypeLabel": "Dell Modern Sensor",
+          "icon": "default.svg",
+          "nameMetricExpression": {
+            "id": "c158d65c-1962-5df9-8f13-73cb81d1974b",
+            "expressionText": "@@@MPB_QUOTE c181eb50-b5e0-53ad-bb1e-6a8917309aac @@@MPB_QUOTE",
+            "expressionParts": [
+              {
+                "id": "c181eb50-b5e0-53ad-bb1e-6a8917309aac",
+                "originType": "METRIC",
+                "originId": "1eb1db28-35db-57b6-aadc-8dcfc686c334"
+              }
+            ]
+          },
+          "identifierIds": [
+            "1eb1db28-35db-57b6-aadc-8dcfc686c334"
+          ]
+        }
+      }
+    }
+  ],
+  "relationships": [],
+  "events": [],
+  "requests": [
+    {
+      "request": {
+        "id": "e9f33719-fd9c-582c-b686-661b85bbf4df",
+        "name": "Service root",
+        "path": "/redfish/v1/",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "e9f33719-fd9c-582c-b686-661b85bbf4df-base-Systems.@odata.id",
+                    "label": "Systems.@odata.id",
+                    "key": [
+                      "Systems",
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "e9f33719-fd9c-582c-b686-661b85bbf4df-base-Chassis.@odata.id",
+                    "label": "Chassis.@odata.id",
+                    "key": [
+                      "Chassis",
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "ab89e285-38b3-5caf-a9f6-ab0c580373c2",
+        "name": "Systems",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": []
+              },
+              {
+                "id": "Members.*",
+                "label": "Members.*",
+                "key": [
+                  "Members"
+                ],
+                "parentListId": "base",
+                "attributes": [
+                  {
+                    "id": "ab89e285-38b3-5caf-a9f6-ab0c580373c2-Members.*-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "8bcf3596-af3c-5ab6-b501-2914212efaad",
+          "parentRequestId": "e9f33719-fd9c-582c-b686-661b85bbf4df",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "d7e6bbbc-7682-5320-b5cf-332851c36f78",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "78ec74d8-02e2-5b54-bfb1-bffc2b15f363",
+                "expressionText": "@@@MPB_QUOTE e187b17c-b8fb-532c-8d9b-08187dbb0ed7 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "e187b17c-b8fb-532c-8d9b-08187dbb0ed7",
+                    "originType": "ATTRIBUTE",
+                    "originId": "e9f33719-fd9c-582c-b686-661b85bbf4df-base-Systems.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "b7414142-b6ad-5144-836e-6a0003c55b89",
+        "name": "Server",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Id",
+                    "label": "Id",
+                    "key": [
+                      "Id"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Status.Health",
+                    "label": "Status.Health",
+                    "key": [
+                      "Status",
+                      "Health"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Status.State",
+                    "label": "Status.State",
+                    "key": [
+                      "Status",
+                      "State"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Manufacturer",
+                    "label": "Manufacturer",
+                    "key": [
+                      "Manufacturer"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-Model",
+                    "label": "Model",
+                    "key": [
+                      "Model"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-SerialNumber",
+                    "label": "SerialNumber",
+                    "key": [
+                      "SerialNumber"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-PowerState",
+                    "label": "PowerState",
+                    "key": [
+                      "PowerState"
+                    ]
+                  },
+                  {
+                    "id": "b7414142-b6ad-5144-836e-6a0003c55b89-base-BiosVersion",
+                    "label": "BiosVersion",
+                    "key": [
+                      "BiosVersion"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "64326007-d1bd-57a4-bb2e-262ad23af131",
+          "parentRequestId": "ab89e285-38b3-5caf-a9f6-ab0c580373c2",
+          "baseListId": "Members.*",
+          "params": [
+            {
+              "id": "75e0568e-2357-508f-9430-5e672f583bda",
+              "label": "Resource URI",
+              "listId": "Members.*",
+              "attributeExpression": {
+                "id": "de41c5d7-e2a0-5852-bf27-10bbbf18b787",
+                "expressionText": "@@@MPB_QUOTE 526383dc-f472-5f25-a291-8caf74ce7a4d @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "526383dc-f472-5f25-a291-8caf74ce7a4d",
+                    "originType": "ATTRIBUTE",
+                    "originId": "ab89e285-38b3-5caf-a9f6-ab0c580373c2-Members.*-@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "f50d0678-77a7-5721-8538-9e1f214e2579",
+        "name": "Chassis collection",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": []
+              },
+              {
+                "id": "Members.*",
+                "label": "Members.*",
+                "key": [
+                  "Members"
+                ],
+                "parentListId": "base",
+                "attributes": [
+                  {
+                    "id": "f50d0678-77a7-5721-8538-9e1f214e2579-Members.*-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "f19b5e68-4b2b-5b39-bb76-e322517a72d2",
+          "parentRequestId": "e9f33719-fd9c-582c-b686-661b85bbf4df",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "b5e5b973-7b35-5dec-ae00-2efabf6fdc55",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "de041d20-71a4-5287-a01b-84eb999fd763",
+                "expressionText": "@@@MPB_QUOTE 460ca1c3-1645-589b-a041-24f779fe11a6 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "460ca1c3-1645-589b-a041-24f779fe11a6",
+                    "originType": "ATTRIBUTE",
+                    "originId": "e9f33719-fd9c-582c-b686-661b85bbf4df-base-Chassis.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "20834df4-872b-5f93-9c80-befcace8c645",
+        "name": "Chassis",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-Id",
+                    "label": "Id",
+                    "key": [
+                      "Id"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-Status.Health",
+                    "label": "Status.Health",
+                    "key": [
+                      "Status",
+                      "Health"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-Status.State",
+                    "label": "Status.State",
+                    "key": [
+                      "Status",
+                      "State"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-EnvironmentMetrics.@odata.id",
+                    "label": "EnvironmentMetrics.@odata.id",
+                    "key": [
+                      "EnvironmentMetrics",
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-PowerSubsystem.@odata.id",
+                    "label": "PowerSubsystem.@odata.id",
+                    "key": [
+                      "PowerSubsystem",
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-ThermalSubsystem.@odata.id",
+                    "label": "ThermalSubsystem.@odata.id",
+                    "key": [
+                      "ThermalSubsystem",
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "20834df4-872b-5f93-9c80-befcace8c645-base-Sensors.@odata.id",
+                    "label": "Sensors.@odata.id",
+                    "key": [
+                      "Sensors",
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "ba9dcce1-6e65-5add-ae8f-1ca20d236923",
+          "parentRequestId": "f50d0678-77a7-5721-8538-9e1f214e2579",
+          "baseListId": "Members.*",
+          "params": [
+            {
+              "id": "de495362-bb9f-5cf1-8ec8-53620686804e",
+              "label": "Resource URI",
+              "listId": "Members.*",
+              "attributeExpression": {
+                "id": "7fefd690-91c3-51a0-99bd-d8b2219330ba",
+                "expressionText": "@@@MPB_QUOTE 52f7e8fc-7912-5b69-ad7e-8958526c1909 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "52f7e8fc-7912-5b69-ad7e-8958526c1909",
+                    "originType": "ATTRIBUTE",
+                    "originId": "f50d0678-77a7-5721-8538-9e1f214e2579-Members.*-@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a",
+        "name": "Environment",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-PowerWatts.Reading",
+                    "label": "PowerWatts.Reading",
+                    "key": [
+                      "PowerWatts",
+                      "Reading"
+                    ]
+                  },
+                  {
+                    "id": "1e3fc2f2-bb14-5d38-94d7-4c93d0f9128a-base-TemperatureCelsius.Reading",
+                    "label": "TemperatureCelsius.Reading",
+                    "key": [
+                      "TemperatureCelsius",
+                      "Reading"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "a3924dcb-f50d-5293-8bc4-f9fad17ee86d",
+          "parentRequestId": "20834df4-872b-5f93-9c80-befcace8c645",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "b33238e9-a73b-551c-8bf3-881641dc83d2",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "68660be3-d25e-5250-93e2-d57fc3ac8469",
+                "expressionText": "@@@MPB_QUOTE 90cab580-d8de-57af-b9a6-0de1fd1805de @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "90cab580-d8de-57af-b9a6-0de1fd1805de",
+                    "originType": "ATTRIBUTE",
+                    "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-EnvironmentMetrics.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "0c6bacbe-860a-5d9e-9c70-1b34a5be289f",
+        "name": "Power subsystem",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "0c6bacbe-860a-5d9e-9c70-1b34a5be289f-base-PowerSupplies.@odata.id",
+                    "label": "PowerSupplies.@odata.id",
+                    "key": [
+                      "PowerSupplies",
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "afbaaf89-4604-542b-ab9a-cb24cb653173",
+          "parentRequestId": "20834df4-872b-5f93-9c80-befcace8c645",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "bd82838a-72d8-5f3b-bac2-157ffac33275",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "e812e908-ecf8-5e62-afc4-7c129308008a",
+                "expressionText": "@@@MPB_QUOTE ae3fc22d-a609-517e-961c-479b54af4d92 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "ae3fc22d-a609-517e-961c-479b54af4d92",
+                    "originType": "ATTRIBUTE",
+                    "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-PowerSubsystem.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "5f539b8c-a53f-5be7-b424-0ff96b45525e",
+        "name": "Power supplies",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": []
+              },
+              {
+                "id": "Members.*",
+                "label": "Members.*",
+                "key": [
+                  "Members"
+                ],
+                "parentListId": "base",
+                "attributes": [
+                  {
+                    "id": "5f539b8c-a53f-5be7-b424-0ff96b45525e-Members.*-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "7a921ca8-ec6c-5b9a-975d-f68d6215f302",
+          "parentRequestId": "0c6bacbe-860a-5d9e-9c70-1b34a5be289f",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "403bc4a8-cd9b-5316-b979-886009f44bb8",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "4495267f-c1fa-5b6c-a13b-40796e22cb0e",
+                "expressionText": "@@@MPB_QUOTE b790f511-bd5e-5dc2-8bcf-a924a5032aa9 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "b790f511-bd5e-5dc2-8bcf-a924a5032aa9",
+                    "originType": "ATTRIBUTE",
+                    "originId": "0c6bacbe-860a-5d9e-9c70-1b34a5be289f-base-PowerSupplies.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7",
+        "name": "Power supply",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Id",
+                    "label": "Id",
+                    "key": [
+                      "Id"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Status.Health",
+                    "label": "Status.Health",
+                    "key": [
+                      "Status",
+                      "Health"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Status.State",
+                    "label": "Status.State",
+                    "key": [
+                      "Status",
+                      "State"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Model",
+                    "label": "Model",
+                    "key": [
+                      "Model"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-SerialNumber",
+                    "label": "SerialNumber",
+                    "key": [
+                      "SerialNumber"
+                    ]
+                  },
+                  {
+                    "id": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Metrics.@odata.id",
+                    "label": "Metrics.@odata.id",
+                    "key": [
+                      "Metrics",
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "cf8debb7-3b8a-5178-b951-c459fb89ad64",
+          "parentRequestId": "5f539b8c-a53f-5be7-b424-0ff96b45525e",
+          "baseListId": "Members.*",
+          "params": [
+            {
+              "id": "c6f599ee-1861-551e-b86b-4e9f49f54eef",
+              "label": "Resource URI",
+              "listId": "Members.*",
+              "attributeExpression": {
+                "id": "59424752-ffee-5c47-a00c-d46dfe5d284d",
+                "expressionText": "@@@MPB_QUOTE 8b6eb4bd-0664-5e7e-9fbd-78f07be3a43f @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "8b6eb4bd-0664-5e7e-9fbd-78f07be3a43f",
+                    "originType": "ATTRIBUTE",
+                    "originId": "5f539b8c-a53f-5be7-b424-0ff96b45525e-Members.*-@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "f44e0515-78c6-5d45-9508-7e4ac297f402",
+        "name": "Power supply metrics",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-InputPowerWatts.Reading",
+                    "label": "InputPowerWatts.Reading",
+                    "key": [
+                      "InputPowerWatts",
+                      "Reading"
+                    ]
+                  },
+                  {
+                    "id": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-OutputPowerWatts.Reading",
+                    "label": "OutputPowerWatts.Reading",
+                    "key": [
+                      "OutputPowerWatts",
+                      "Reading"
+                    ]
+                  },
+                  {
+                    "id": "f44e0515-78c6-5d45-9508-7e4ac297f402-base-InputVoltage.Reading",
+                    "label": "InputVoltage.Reading",
+                    "key": [
+                      "InputVoltage",
+                      "Reading"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "749889a6-8231-5b03-a759-de179c101fd6",
+          "parentRequestId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "1c8d8879-7b1b-5875-bfc6-8a626b492200",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "1a7f8369-4090-5438-a2ac-9be7709ceb75",
+                "expressionText": "@@@MPB_QUOTE 8b6d07e6-8667-5508-a3ec-33fe2ba4e4cb @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "8b6d07e6-8667-5508-a3ec-33fe2ba4e4cb",
+                    "originType": "ATTRIBUTE",
+                    "originId": "66aa3b4f-43c7-549a-b010-7e64e3be0fc7-base-Metrics.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "fa654bf8-5ec8-5a76-b47b-efb9561b6d4e",
+        "name": "Thermal subsystem",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "fa654bf8-5ec8-5a76-b47b-efb9561b6d4e-base-Fans.@odata.id",
+                    "label": "Fans.@odata.id",
+                    "key": [
+                      "Fans",
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "38cbcdf2-4c68-5d9b-b3eb-6550993b8b10",
+          "parentRequestId": "20834df4-872b-5f93-9c80-befcace8c645",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "4f60b149-16a9-5d92-8ae8-f6a3895bc462",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "b83e9198-2894-5ef0-97e9-3402df761b9a",
+                "expressionText": "@@@MPB_QUOTE 0a4409e0-195c-5e72-a333-614a5ee207ec @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "0a4409e0-195c-5e72-a333-614a5ee207ec",
+                    "originType": "ATTRIBUTE",
+                    "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-ThermalSubsystem.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "c3853062-4b25-54e9-af6d-fb0e001635ac",
+        "name": "Fans",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": []
+              },
+              {
+                "id": "Members.*",
+                "label": "Members.*",
+                "key": [
+                  "Members"
+                ],
+                "parentListId": "base",
+                "attributes": [
+                  {
+                    "id": "c3853062-4b25-54e9-af6d-fb0e001635ac-Members.*-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "002a2b2d-14bd-5bbc-a543-1fce3718b2c8",
+          "parentRequestId": "fa654bf8-5ec8-5a76-b47b-efb9561b6d4e",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "bd383221-7c1d-5e8e-8dec-7d1976b4fbbe",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "18675c7d-8abc-5bb6-9c46-d922cbd0c7c0",
+                "expressionText": "@@@MPB_QUOTE e86cde54-675a-59a3-b39d-3181a11fc5e7 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "e86cde54-675a-59a3-b39d-3181a11fc5e7",
+                    "originType": "ATTRIBUTE",
+                    "originId": "fa654bf8-5ec8-5a76-b47b-efb9561b6d4e-base-Fans.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5",
+        "name": "Fan",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Id",
+                    "label": "Id",
+                    "key": [
+                      "Id"
+                    ]
+                  },
+                  {
+                    "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Status.Health",
+                    "label": "Status.Health",
+                    "key": [
+                      "Status",
+                      "Health"
+                    ]
+                  },
+                  {
+                    "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-Status.State",
+                    "label": "Status.State",
+                    "key": [
+                      "Status",
+                      "State"
+                    ]
+                  },
+                  {
+                    "id": "fe1e21e3-f9fd-5323-a31c-b9cfede573f5-base-SpeedPercent.Reading",
+                    "label": "SpeedPercent.Reading",
+                    "key": [
+                      "SpeedPercent",
+                      "Reading"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "b522859b-328e-5a4a-9201-e6395104d3a1",
+          "parentRequestId": "c3853062-4b25-54e9-af6d-fb0e001635ac",
+          "baseListId": "Members.*",
+          "params": [
+            {
+              "id": "034fa8b8-9043-5093-b546-0bc950cd2440",
+              "label": "Resource URI",
+              "listId": "Members.*",
+              "attributeExpression": {
+                "id": "8ed5704e-c1f6-5740-aa8b-24baa7512e8a",
+                "expressionText": "@@@MPB_QUOTE 96b3cfbf-db51-5b60-997d-a1348fdb3945 @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "96b3cfbf-db51-5b60-997d-a1348fdb3945",
+                    "originType": "ATTRIBUTE",
+                    "originId": "c3853062-4b25-54e9-af6d-fb0e001635ac-Members.*-@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "978cf65b-3a0e-56d8-b017-fcb38d2803a2",
+        "name": "Sensors",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": []
+              },
+              {
+                "id": "Members.*",
+                "label": "Members.*",
+                "key": [
+                  "Members"
+                ],
+                "parentListId": "base",
+                "attributes": [
+                  {
+                    "id": "978cf65b-3a0e-56d8-b017-fcb38d2803a2-Members.*-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "844428ac-c5d9-5cb0-a8f6-7d05cdd6c720",
+          "parentRequestId": "20834df4-872b-5f93-9c80-befcace8c645",
+          "baseListId": "base",
+          "params": [
+            {
+              "id": "1085eca6-8454-55bc-8f60-b882225b40d9",
+              "label": "Resource URI",
+              "listId": "base",
+              "attributeExpression": {
+                "id": "7f069369-7a75-5d49-bb41-aad19128d213",
+                "expressionText": "@@@MPB_QUOTE 9ff93fa9-fef6-5660-9c0d-cb0d87eced3a @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "9ff93fa9-fef6-5660-9c0d-cb0d87eced3a",
+                    "originType": "ATTRIBUTE",
+                    "originId": "20834df4-872b-5f93-9c80-befcace8c645-base-Sensors.@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a",
+        "name": "Sensor",
+        "path": "${requestParameters.resource}",
+        "method": "GET",
+        "body": "",
+        "headers": [],
+        "params": [],
+        "response": {
+          "result": {
+            "responseCode": 200,
+            "dataModelLists": [
+              {
+                "id": "base",
+                "key": [],
+                "attributes": [
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-@odata.id",
+                    "label": "@odata.id",
+                    "key": [
+                      "@odata.id"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Id",
+                    "label": "Id",
+                    "key": [
+                      "Id"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Name",
+                    "label": "Name",
+                    "key": [
+                      "Name"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Status.Health",
+                    "label": "Status.Health",
+                    "key": [
+                      "Status",
+                      "Health"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Status.State",
+                    "label": "Status.State",
+                    "key": [
+                      "Status",
+                      "State"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-Reading",
+                    "label": "Reading",
+                    "key": [
+                      "Reading"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-ReadingType",
+                    "label": "ReadingType",
+                    "key": [
+                      "ReadingType"
+                    ]
+                  },
+                  {
+                    "id": "4c863e67-ff2e-5500-8b0b-bf2faeb9d48a-base-ReadingUnits",
+                    "label": "ReadingUnits",
+                    "key": [
+                      "ReadingUnits"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "chainingSettings": {
+          "id": "c48f0fd4-8311-5935-b3af-77b20df227b7",
+          "parentRequestId": "978cf65b-3a0e-56d8-b017-fcb38d2803a2",
+          "baseListId": "Members.*",
+          "params": [
+            {
+              "id": "1201519a-990e-50fb-85f9-9d11b9273f61",
+              "label": "Resource URI",
+              "listId": "Members.*",
+              "attributeExpression": {
+                "id": "cd391e10-e6ef-57ac-8581-8641b4651486",
+                "expressionText": "@@@MPB_QUOTE 8edb8b51-1fab-5b4d-bd86-7bb62d36323b @@@MPB_QUOTE",
+                "expressionParts": [
+                  {
+                    "id": "8edb8b51-1fab-5b4d-bd86-7bb62d36323b",
+                    "originType": "ATTRIBUTE",
+                    "originId": "978cf65b-3a0e-56d8-b017-fcb38d2803a2-Members.*-@odata.id"
+                  }
+                ]
+              },
+              "key": "resource",
+              "usage": "${requestParameters.resource}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
