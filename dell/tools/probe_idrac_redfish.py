@@ -12,13 +12,30 @@ import ssl
 import sys
 import urllib.error
 import urllib.request
+import urllib.parse
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise RuntimeError('Redirect refused; configure the final iDRAC HTTPS hostname')
+
+
+def resource_url(base, path):
+    url = urllib.parse.urljoin(base, path)
+    original, target = urllib.parse.urlsplit(base), urllib.parse.urlsplit(url)
+    if (target.scheme, target.netloc) != (original.scheme, original.netloc):
+        raise RuntimeError('Cross-origin Redfish link refused')
+    if not target.path.startswith('/redfish/v1/') or target.fragment:
+        raise RuntimeError('Invalid Redfish resource link')
+    return url
 
 
 def get(base, path, auth, context):
-    request = urllib.request.Request(base + path.lstrip('/'), headers={
+    request = urllib.request.Request(resource_url(base, path), headers={
         'Accept': 'application/json', 'Authorization': auth})
     try:
-        with urllib.request.urlopen(request, context=context, timeout=20) as response:
+        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=context), NoRedirect())
+        with opener.open(request, timeout=20) as response:
             return json.load(response)
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
@@ -76,7 +93,9 @@ def main():
     if args.json:
         print(json.dumps(result, indent=2))
     else:
-        print(f"Recommended profile: {profile}")
+        print(f"Detected resource family: {profile} (not a Builder support certification)")
+        if profile == 'modern':
+            print('Modern collector mappings are not included in the current Builder design.')
         print(f"Redfish version: {result['redfish_version'] or 'not reported'}")
         print(f"System: {system}")
         print(f"Chassis: {chassis_uri}")
