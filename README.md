@@ -6,7 +6,7 @@ Choose an integration below for its design download, setup guide, tested scope, 
 
 | Integration | Setup and coverage |
 | --- | --- |
-| QNAP Direct HTTPS | [QNAP guide](qnap/README.md): array, disk health, volume usage, and iSCSI service inventory |
+| QNAP Direct HTTPS | [QNAP guide](qnap/README.md): array, disk, volume, iSCSI service, target, and LUN monitoring |
 | Ubiquiti UniFi Network | [UniFi guide](ubiquiti/README.md): sites, devices, device statistics, and site-to-device relationships |
 | Dell iDRAC Redfish | [Dell guide](dell/README.md): PowerEdge health and inventory, system power, power supplies, and temperatures |
 | HPE iLO Redfish | [HPE guide](hpe/README.md): ProLiant inventory, controller details, fans, temperatures, and power; August 31 best-effort iLO 4–7 update (iLO 4 tested live; newer hardware unverified) |
@@ -15,7 +15,7 @@ Choose an integration below for its design download, setup guide, tested scope, 
 
 Each integration folder uses the same layout: `README.md` for its complete guide and `designs/` for its Builder JSON. The guides use matching sections for downloads, tested status, coverage, prerequisites, requests, installation, troubleshooting, limitations, and security. Device coverage and credentials remain specific to each integration; a missing compatibility result is recorded as unknown rather than assumed.
 
-The Dell walkthrough is consolidated into its guide; no separate blog folder is needed. QNAP and UniFi have published version 1.0.0 download releases. Dell and HPE currently provide their JSON directly. Existing release ZIPs retain their original documentation; the repository guides contain the latest documentation updates.
+The Dell walkthrough is consolidated into its guide; no separate blog folder is needed. QNAP now includes the current identity-preserving volume migration and repeatable target/LUN design. Dell and HPE currently provide their JSON directly. Existing release ZIPs retain their original documentation; the repository guides contain the latest documentation updates.
 
 These downloads are **Management Pack Builder design JSON files, not installable `.pak` files**. Extract a design archive, import its JSON into Builder, configure your environment, validate collection, and install through Builder. Do not upload a design ZIP to a `.pak` installer.
 
