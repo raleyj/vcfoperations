@@ -1,84 +1,115 @@
 # QNAP Direct HTTPS
 
-A community Management Pack Builder preview for QNAP array inventory, disk health, volume usage, and iSCSI service monitoring directly through QTS over HTTPS. No bridge appliance is required.
+A community Management Pack Builder integration for monitoring QNAP QTS
+directly from VMware Cloud Foundation Operations over HTTPS. No bridge appliance
+is required.
 
-## Downloads
+## Download
 
-- [Builder design JSON](designs/QNAP%20Direct%20HTTPS.json)
-- [Version 1.0.0 release and design ZIP](https://github.com/raleyj/vcfoperations/releases/tag/qnap-v1.0.0)
+- [Current Builder design JSON](designs/QNAP%20Direct%20HTTPS.json)
+- [Release downloads](https://github.com/raleyj/vcfoperations/releases)
 
-Exported design version: **1.0.0**. This is a Builder design, not an installable `.pak`. Its description still identifies preview limitations. The export is preserved unchanged, including defaults of two concurrent requests and two retries. The release ZIP includes the guide as it stood when released; this README is the current guide.
+The JSON is a Management Pack Builder design, not a conventional `.pak`. Import
+and install or upgrade it through **Build > Developer Center > Management Pack
+Builder**.
 
-## Tested environment and status
+## Tested release
 
-The existing project testing covered a QNAP TS-435XeU running QTS 5.2.9.3451 with VCF Operations 9.1.0.0400.25541561. This is not a compatibility guarantee for other hardware or firmware.
+| Component | Tested value |
+| --- | --- |
+| QNAP | TS-435XeU |
+| QTS | 5.2.9.3451 |
+| VCF Operations | 9.1.0.0400.25541561 |
+| Installed integration | 1.0.0.7 |
 
-The source Builder listed this design as Verified and Installed during publication on August 27, 2026. This documentation review does not perform a new import, installation, or scheduled-collection test. Sustained runtime collection is not established by that status. This is a community preview, not a QNAP or Broadcom certified management pack.
+The current design was upgraded in place. The existing account and installed
+Volume Usage identity were retained. The account reported **Collecting** after
+the upgrade. This is a community integration, not a QNAP or Broadcom certified
+management pack.
 
 ## Coverage
 
 | Object type | Coverage |
 | --- | --- |
-| QNAP Direct Array | Array identity, memory, temperatures, fan readings, and raw CPU usage property |
-| QNAP Direct Disk | Disk identity, health/status, and temperature |
-| QNAP Direct Volume Usage | Volume identity and raw total/free size values |
-| QNAP Direct iSCSI Service | Service settings and target, LUN, and initiator counts |
+| QNAP Direct Array | Identity, firmware, memory, temperatures, fans, and numeric CPU usage |
+| QNAP Direct Disk | Identity, health/status, capacity, temperature, and available SMART properties |
+| QNAP Direct Volume Usage | Existing Volume ID binding with total and free capacity in bytes |
+| QNAP Direct iSCSI Service | Service configuration and aggregate target, LUN, and initiator counts |
+| QNAP Direct iSCSI Target | Stable identity, status, and mapped-LUN count |
+| QNAP Direct iSCSI LUN | Stable identity, status, mapping, thin state, sector size, and capacity bytes |
 
-The design has four custom object types and four collection requests. Authentication and the source test are additional requests. Inventory counts depend on the destination NAS.
+The final live Builder verification completed in two seconds with 15 objects,
+37 metrics, 84 properties, and 17 relationships. The tested NAS exposed one
+array, six disks, one real volume, one iSCSI service, two targets, and two LUNs.
+An inspected target status metric had two scheduled samples and an inspected
+LUN capacity metric had one positive scheduled sample after the upgrade.
 
-## Before importing
-
-- Provide collector connectivity to the NAS HTTPS management port; the default is 443.
-- Use a trusted server certificate whose SAN matches the hostname supplied to the collector. Keep SSL Configuration set to Verify.
-- Prepare a dedicated QTS account. Existing project tests required System Monitoring for system/disk/volume requests and System Management for the iSCSI request. **System Management grants broad management capabilities**; read-only shared-folder permissions do not make this a read-only system account. Review this permission requirement before deployment.
-
-## Connection and requests
-
-The source uses QTS session authentication over HTTPS. Username and Encoded Password are supplied separately in the UI; login produces the session token used by subsequent requests. The hostname default is blank and TLS defaults to Verify.
-
+## QTS requests
 
 | Purpose | Method and path |
 | --- | --- |
 | Login | POST `/cgi-bin/authLogin.cgi` |
 | Health | GET `/cgi-bin/management/manaRequest.cgi?subfunc=sysinfo&sysHealth=1` |
 | System statistics | GET `/cgi-bin/management/manaRequest.cgi?subfunc=sysinfo&hd=no&multicpu=1` |
+| CPU statistics | GET `/cgi-bin/management/manaRequest.cgi?subfunc=sysmonitor&sys_cpu_use_v2=1&sys_memory_use=1` |
 | Disk health | GET `/cgi-bin/disk/qsmart.cgi?func=all_hd_data` |
 | Volume usage | GET `/cgi-bin/management/chartReq.cgi?chart_func=disk_usage&disk_select=all&include=all` |
 | iSCSI inventory | GET `/cgi-bin/disk/iscsi_portal_setting.cgi?func=get_all` |
-| Logout | GET `/cgi-bin/authLogout.cgi` |
+| Logout | GET `/cgi-bin/authLogout.cgi?logout=1` |
 
-Authenticated requests include a session ID. Treat request URLs and logs as sensitive.
+Authenticated requests append the Builder session variable. Treat request URLs
+and diagnostic logs as sensitive.
 
-## Import and configure
+## Account and credentials
 
-1. Extract the design ZIP if using a release archive. Import the JSON into **Build > Developer Center > Management Pack Builder**. It is not an installable `.pak`.
-2. Preserve any existing design and use a distinct name for your test copy.
-3. Open Source and supply the collector, NAS hostname, HTTPS port, and credentials in the UI. Do not embed these values in the JSON.
-4. URL-encode the QTS username for the Username credential.
-5. For Encoded Password, Base64-encode the password's UTF-8 bytes, then URL-encode the Base64 result. Do not add a newline or encode twice. Generate this locally with a trusted tool, never an online encoder. The encoded value remains a password-equivalent secret.
-6. Test session creation, the health request, and session release. Preserve the `authsid` session mapping.
-7. Run a full Builder collection and compare inventory and values with QTS.
-8. Install through Builder. Add/configure the installed integration account with its own host, collector, TLS settings, and correctly encoded credentials.
-9. Verify at least two scheduled collection cycles, recent timestamps, and plausible values before relying on the integration. Compare coverage before retiring an existing bridge integration.
+The tested system, disk, and volume requests used the QTS **System Monitoring**
+permission. iSCSI inventory required **System Management** on the tested NAS.
+System Management is a broad role; shared-folder read-only access does not make
+it a read-only system role.
 
-## Troubleshooting
+The login request uses form encoding:
 
-- Missing `authSid`: inspect the login result and credential encoding. HTTP 200 alone does not prove authentication succeeded.
-- Builder works but the integration account fails: enter the account credentials separately; they are not copied from Builder test settings.
-- TLS errors: correct trust and hostname matching. No Verify removes server identity verification and is not the recommended deployment setting.
-- Missing iSCSI data: check QTS permissions and firmware response shape. A zero LUN count is not proof that the NAS has no LUNs of any type.
+1. URL-encode the QTS username. An alphanumeric username is unchanged.
+2. Base64-encode the password's UTF-8 bytes.
+3. URL-encode the Base64 result, including `+`, `/`, and `=`.
+4. Enter it in **Encoded Password**.
 
-## Limitations
+The encoded password remains a password-equivalent secret. Generate it locally,
+never with an online encoder.
 
-- CPU utilization is a raw string property, not a numeric utilization metric.
-- Volume values need unit normalization and multi-volume response validation.
-- Fan mappings cover the tested hardware.
-- Separate LUN/target objects, RAID groups, storage pools, IOPS, latency, dashboards, alerts, events, and custom topology relationships are not included.
-- A zero LUN count is not proof that the NAS has no LUNs of any type.
-- Validate behavior on other hardware/firmware and verify scheduled collection before relying on monitoring. Compare coverage before retiring an existing bridge integration.
+## Import or upgrade
+
+1. Back up/export the existing Builder design when upgrading.
+2. Import the current JSON into Management Pack Builder, or apply the changes to
+   the existing design when history and identities must be preserved.
+3. Configure a collector, NAS hostname, HTTPS port, Username, Encoded Password,
+   and TLS mode. Keep **Verify** enabled with a trusted certificate whose SAN
+   matches the configured hostname.
+4. Test session creation, health, and session release. HTTP 200 alone does not
+   prove QTS authentication succeeded.
+5. Run **Verify > Perform Collection** and inspect the returned inventory.
+6. Install or upgrade through Builder.
+7. Configure or retain the installed integration account separately from the
+   Builder test credentials.
+8. Confirm Collecting status, recent timestamps, expected object counts, and
+   plausible values against QTS.
+
+## Remaining validation boundaries
+
+- Complete a real 24-72 hour soak and controlled authentication, partial-request,
+  credential-rotation, and TLS failure/recovery tests.
+- Validate more than one real data volume, additional QTS versions, and
+  multi-physical-CPU models.
+- Prove a narrower monitoring-only permission profile or separate no-iSCSI
+  edition if denied iSCSI access cannot be isolated.
+- Discover stable pool/RAID endpoints before adding pool or RAID objects.
+- Build and test dashboards and alert definitions after sufficient scheduled
+  target/LUN history exists.
+- RAID groups, pools, IOPS, throughput, latency, initiator objects, dashboards,
+  alerts, and custom events are not included in this Builder design.
 
 ## Security
 
-Do not publish credentials, raw response bodies, private addresses, hostnames, or device identifiers in issues or screenshots. See the repository [security guidance](../SECURITY.md).
-
-The encoded QTS password is a password-equivalent secret, not encryption. Session IDs in request URLs and logs are also sensitive.
+Do not publish credentials, encoded passwords, session IDs, response bodies,
+private addresses, hostnames, IQNs, NAA values, CHAP data, storage paths, or
+device serials in issues or screenshots. See [SECURITY.md](../SECURITY.md).
