@@ -110,4 +110,3 @@ if __name__ == '__main__':
     except (OSError, RuntimeError, json.JSONDecodeError) as exc:
         print(f'Probe failed: {exc}', file=sys.stderr)
         raise SystemExit(1)
-
