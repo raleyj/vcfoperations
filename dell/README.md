@@ -22,10 +22,10 @@ Exported design version: **1.0.0**. This is a Builder design, not an installable
 
 - PowerEdge R650 with iDRAC9 Datacenter and firmware 7.20.30.00.
 - VCF Operations 9.1.0.0400.25541561, built-in Management Pack Builder.
-- Reference server powered off during testing.
-- Source connection, full Builder collection, and installation succeeded on August 27, 2026.
-- Test collection returned **9 objects, 27 metrics, 58 properties, 8 default relationships, and 0 events**. Totals include Builder's adapter instance and default collection statistics.
-- Runtime integration-account validation and sustained scheduled collection were **not verified in this project**.
+- Initial powered-off semantics and later powered-on inventory were both tested.
+- Source connection, full Builder collection, installation, upgrade, and scheduled runtime collection succeeded.
+- The latest firmware-expanded preview returned **65 objects, 125 metrics, 463 properties, and 64 relationships**. The Dell-scoped dashboard displayed 66 adapter objects including the adapter instance.
+- The healthy-state operational check produced no false low-temperature or Dell server-health alert.
 
 This is a custom community preview, not a Dell or Broadcom certified management pack. Other iDRAC generations, firmware versions, and PowerEdge models need separate validation.
 
@@ -89,9 +89,10 @@ No Verify keeps encryption but disables certificate identity verification. It is
 
 ## Limitations
 
-- The repository JSON export is older than the installed lab design. The installed design now has 16 per-fan objects with RPM, health, location, and units, but the export must be refreshed before those mappings can be published here.
-- No individual disk, RAID, storage-controller, DIMM, or CPU objects; server health rollups are not detailed component monitoring.
-- No custom dashboards, alert definitions, event mappings, or custom server-to-component topology. The eight test relationships were Builder defaults.
+- The design has storage-resource rollups but does not model individual drives, virtual disks, controller cache/battery health, or hardware events.
+- Processor and populated memory-module objects are included. Empty optional collections remain distinguishable from failed installed components.
+- The Dell-scoped dashboard and two-cycle server-health alert are deployed in the tested VCF Operations instance and documented in `OPERATIONS_CONTENT.md`; they are not embedded in the Builder JSON export.
+- Custom server-to-component relationships are intentionally omitted where Builder does not expose a stable shared source key.
 - Temperature and power units are explicit in labels; the Builder unit list did not offer Celsius or watts. Efficiency uses percent and installed memory uses GiBy.
 - Dell marks the tested `/Power` and `/Thermal` resources deprecated in favor of newer subsystem resources. They worked on the tested firmware; migration to newer endpoints needs validation.
 - The release is design JSON, not a standalone `.pak`. Do not rename JSON or ZIP files to `.pak`.
@@ -99,7 +100,7 @@ No Verify keeps encryption but disables certificate identity verification. It is
 
 ## Current development evidence
 
-The installed lab design was verified with 38 objects, 97 metrics, 274 properties, and 37 relationships before a successful upgrade. It includes 16 fans, two processors, eight populated memory modules, and three storage resources in addition to the original server, power, supply, and temperature objects. The Builder export in `designs/` must be refreshed before the next public release; its `1.0.0` metadata and "Fan metrics not included" description are not current.
+The installed lab design was verified with 16 fans, two processors, eight populated memory modules, three storage resources, and expanded firmware inventory in addition to the original server, power, supply, and temperature objects. The latest preview completed with 65 objects, 125 metrics, 463 properties, and 64 relationships before a successful upgrade. The JSON under `designs/` is the matching sanitized Builder export.
 
 Run the credential-free legacy semantic regressions with:
 
