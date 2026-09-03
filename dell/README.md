@@ -89,13 +89,25 @@ No Verify keeps encryption but disables certificate identity verification. It is
 
 ## Limitations
 
-- No fan metrics: the powered-off reference returned an empty fan list. Adding fan mappings requires another test with real fan data.
+- The repository JSON export is older than the installed lab design. The installed design now has 16 per-fan objects with RPM, health, location, and units, but the export must be refreshed before those mappings can be published here.
 - No individual disk, RAID, storage-controller, DIMM, or CPU objects; server health rollups are not detailed component monitoring.
 - No custom dashboards, alert definitions, event mappings, or custom server-to-component topology. The eight test relationships were Builder defaults.
 - Temperature and power units are explicit in labels; the Builder unit list did not offer Celsius or watts. Efficiency uses percent and installed memory uses GiBy.
 - Dell marks the tested `/Power` and `/Thermal` resources deprecated in favor of newer subsystem resources. They worked on the tested firmware; migration to newer endpoints needs validation.
 - The release is design JSON, not a standalone `.pak`. Do not rename JSON or ZIP files to `.pak`.
 - Installation and a successful test collection do not prove continuous runtime collection.
+
+## Current development evidence
+
+The installed lab design was verified with 38 objects, 97 metrics, 274 properties, and 37 relationships before a successful upgrade. It includes 16 fans, two processors, eight populated memory modules, and three storage resources in addition to the original server, power, supply, and temperature objects. The Builder export in `designs/` must be refreshed before the next public release; its `1.0.0` metadata and "Fan metrics not included" description are not current.
+
+Run the credential-free legacy semantic regressions with:
+
+```text
+python -m unittest discover -s regression -p test_*.py -v
+```
+
+The nine tests cover null and true-zero values, empty or missing optional collections, partial Thermal responses, additive schema fields, raw health, and stable fan identity across a simulated serial-number replacement. See `OPERATIONS_CONTENT.md` for the dashboard and alert-policy specification and `VALIDATION.md` for live evidence and remaining acceptance gates.
 
 ## Security
 
