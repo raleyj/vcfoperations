@@ -9,7 +9,7 @@ Choose an integration below for its design download, setup guide, tested scope, 
 | QNAP Direct HTTPS | [QNAP guide](qnap/README.md): array, disk, volume, iSCSI service, target, and LUN monitoring |
 | Ubiquiti UniFi Network | [UniFi guide](ubiquiti/README.md): sites, devices, device statistics, and site-to-device relationships |
 | Dell iDRAC Redfish | [Dell guide](dell/README.md): PowerEdge health and inventory, system power, power supplies, and temperatures |
-| HPE iLO Redfish | [HPE guide](hpe/README.md): ProLiant inventory, controller details, fans, temperatures, and power; August 31 best-effort iLO 4–7 update (iLO 4 tested live; newer hardware unverified) |
+| HPE iLO Redfish | [HPE guide](hpe/README.md): inventory, storage, DIMMs, processors, firmware, sensors and topology; September 4 package 1.0.0.7 update; iLO 4 tested, iLO 4-7 best-effort target; further work paused with documented limitations |
 
 ## Start here
 
@@ -39,4 +39,5 @@ Include the Operations version, device software version, reproduction steps, and
 ## License
 
 This repository uses the existing GPL-3.0 license in [LICENSE](LICENSE). Product names and trademarks belong to their respective owners.
+
 
